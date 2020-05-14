@@ -6,3 +6,4 @@ install:
     - pip install -r requirements-dev.txt
 script:
     - flake8 --max-line-length=120 botster
+    - isort -c
