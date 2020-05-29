@@ -3,9 +3,15 @@ import setuptools
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
+requirements = [
+    'logthon',
+    'python-telegram-bot',
+    'python-dotenv'
+]
+
 setuptools.setup(
     name="botster",
-    version="0.1.1",
+    version="0.1.10",
     author="Giuseppe mastrobirraio Matranga",
     author_email="matrangagiuseppe99@gmail.com",
     description="A booster framework to verticalize Telegram bot development",
