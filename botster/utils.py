@@ -7,7 +7,7 @@ def setup_logger(module_name=__name__):
 
 class Settings:
 
-    BOT_KEY = Nonebotster/utils.py
+    BOT_KEY = None
 
     def __init__(self):
         from dotenv import load_dotenv
