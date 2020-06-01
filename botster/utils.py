@@ -29,3 +29,39 @@ class Settings:
         for attr in self.__get_attrs():
             setattr(self, attr, os_get_env_variable(attr))
         self.__validate_attrs()
+
+
+class Command:
+
+    def __init__(self, settings):
+        self._settings = settings
+
+    @property
+    def name(self):
+        module_package = __name__.split('.')
+        if len(module_package):
+            return module_package[-1]
+        raise AttributeError
+
+    @property
+    def _bot(self):
+        return self._context.bot
+
+    @property
+    def _chat_id(self):
+        return self._update.effective_chat.id
+
+    def _send_message(self, message):
+        self._bot.send_message(chat_id=self._chat_id, text=message)
+
+    def _get_args(self):
+        return self._context.args
+
+    def telegram_command(self, update, context):
+        self._update = update
+        self._context = context
+        self.execute()
+
+    def execute(self):
+        logthon = setup_logger()
+        logthon.warn('Execute command class is missing')
