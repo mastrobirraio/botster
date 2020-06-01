@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 
 import inspect
-
 from os import listdir
 from os.path import dirname, join
 from shutil import copy, copytree
 
 from botster import snippet
-from botster.utils import setup_logger
-from botster.utils import Settings
+from botster.utils import Settings, setup_logger
 
 logthon = setup_logger(__name__)
 
