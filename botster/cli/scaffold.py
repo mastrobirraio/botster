@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 
-from botster.utils import setup_logger
+import inspect
+from os import listdir
+from os.path import dirname, join
+from shutil import copy, copytree
+
+from botster import snippet
+from botster.utils import Settings, setup_logger
 
 logthon = setup_logger(__name__)
 
@@ -22,13 +28,16 @@ class ScaffoldManager:
     def __init__(self, path):
         self.__path = path
 
+    def __generate_env_file(self):
+        attributes = inspect.getmembers(Settings, lambda a: not (inspect.isroutine(a)))
+        attributes = [a for a in attributes if not(a[0].startswith('__') and a[0].endswith('__'))]
+
+        env_file_name = join(self.__path, '.env')
+        with open(env_file_name, 'w') as env_file:
+            for attr in attributes:
+                env_file.write(attr[0] + '=""\n')
+
     def scaffold(self):
-        from os import listdir
-        from os.path import dirname, join
-        from shutil import copy, copytree
-
-        from botster import snippet
-
         src = dirname(snippet.__file__)
         dst = self.__path
 
@@ -46,13 +55,12 @@ class ScaffoldManager:
             except FileExistsError:
                 logthon.log_and_exit_with_code('Destination path already exists', error_code=3)
 
+        self.__generate_env_file()
 
-def start_project():
+
+def start_project(path):
     """ Get source directory path and instance Scaffold manager
     """
-    from os import getcwd
-
-    path = getcwd()
 
     logthon.info('Scaffolding new project')
     logthon.info(f'Target directory: {path}')

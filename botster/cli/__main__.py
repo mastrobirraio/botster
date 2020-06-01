@@ -1,7 +1,15 @@
 import argparse
+from os import getcwd
 
+CURRENT_WORK_DIRECTORY = getcwd()
 parser = argparse.ArgumentParser('botster-cli args')
-parser.add_argument('--start-project', action='store_true', help='Scaffold new project')
+parser.add_argument(
+    '--start-project',
+    metavar='OPTIONAL_PATH',
+    nargs='?',
+    const=CURRENT_WORK_DIRECTORY,
+    type=str,
+    help='Scaffold new project. Default current work directory')
 args = parser.parse_args()
 
 
@@ -19,7 +27,7 @@ class CommandLineInterface:
         """
 
         from botster.cli.scaffold import start_project
-        start_project()
+        start_project(args.start_project)
 
     def main(self):
         """ Check defined arguments and call related methods
