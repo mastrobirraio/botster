@@ -1,0 +1,36 @@
+version: 2.1
+jobs:
+    build:
+        docker:
+            - image: circleci/python:3.6.4
+        steps:
+            - checkout
+            - run:
+                name: Update pip dependencies
+                command: sudo pip install -r requirements-dev.txt
+
+    isort:
+        docker:
+            - image: circleci/python:3.6.4
+        steps:
+            - checkout
+            - run: isort -c
+
+    flake:
+        docker:
+            - image: circleci/python:3.6.4
+        steps:
+            - checkout
+            - run: flake8 --max-line-length=120
+
+workflows:
+    version: 2.1
+    build_and_test:
+        jobs:
+            - build
+            - isort:
+                requires:
+                    - build
+            - flake:
+                requires:
+                    - build
