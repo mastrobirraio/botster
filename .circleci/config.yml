@@ -1,19 +1,47 @@
 version: 2.1
+
+commands:
+    setup_testing_tools:
+        description: Configure testing env
+        steps:
+            - run: sudo chown -R circleci:circleci /usr/local/bin
+            - run: sudo chown -R circleci:circleci /usr/local/lib/python3.6/site-packages
+            - checkout
+            - restore_cache:
+                name: "Restore testing dependencies"
+                keys:
+                    - pip-packages-v2-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+                    - pip-packages-v2-{{ .Branch }}-
+                    - pip-packages-v2-
+            - run:
+                name: "Install testing dependencies"
+                command: pipenv install -r requirements-dev.txt
+            - save_cache:
+                name: "Save testing dependencies"
+                paths:
+                    - .venv
+                key: pip-packages-v2-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+            - run:
+                name: "Activate testing environment"
+                command: echo "source .venv/bin/activate" >> $BASH_ENV
+            - run:
+                name: "Dependencies installed"
+                command: pip freeze
+
 jobs:
     build:
         docker:
             - image: circleci/python:3.6.4
         steps:
             - checkout
-            - run:
-                name: Update pip dependencies
-                command: sudo pip install -r requirements-dev.txt
+            - setup_testing_tools
 
     isort:
         docker:
             - image: circleci/python:3.6.4
         steps:
             - checkout
+            - setup_testing_tools
             - run: isort -c
 
     flake:
@@ -21,6 +49,7 @@ jobs:
             - image: circleci/python:3.6.4
         steps:
             - checkout
+            - setup_testing_tools
             - run: flake8 --max-line-length=120
 
 workflows:
