@@ -76,10 +76,7 @@ workflows:
 
     build_and_pypi_test_deploy:
         jobs:
-            - build
-            - build_dist:
-                requires:
-                    - build
+            - build:
                 filters:
                     tags:
                         only: /.*/
@@ -88,7 +85,6 @@ workflows:
             - deploy_pypi_test:
                 requires:
                     - build
-                    - build_dist
                 filters:
                     tags:
                         only: /.*/
