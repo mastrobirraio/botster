@@ -38,14 +38,59 @@ jobs:
             - setup_testing_tools
             - run: flake8 --max-line-length=120
 
+    deploy_pypi_test:
+        docker:
+            - image: circleci/python:3.6.4
+        steps:
+            - checkout
+            - setup_testing_tools
+            - run:
+                name: verify git tag and version
+                command: |
+                    python setup.py verify
+            - run: 
+                name: init .pypirc
+                command: |
+                    echo -e "[pypi]" >> ~/.pypirc
+                    echo -e "username = $PYPI_USERNAME" >> ~/.pypirc
+                    echo -e "password = $PYPI_PASSWORD" >> ~/.pypirc
+            - run:
+                name: create packages
+                command: | 
+                    make package
+            - run:
+                name: upload to pypi test
+                command: |
+                    twine upload dist/*
+
 workflows:
     version: 2.1
     build_and_test:
         jobs:
+            - isort
+            - flake
+            - build:
+                requires:
+                    - flake
+                    - isort
+
+    build_and_pypi_test_deploy:
+        jobs:
             - build
-            - isort:
+            - build_dist:
                 requires:
                     - build
-            - flake:
+                filters:
+                    tags:
+                        only: /.*/
+                    branches:
+                        ignore: /.*/
+            - deploy_pypi_test:
                 requires:
                     - build
+                    - build_dist
+                filters:
+                    tags:
+                        only: /.*/
+                    branches:
+                        ignore: /.*/
