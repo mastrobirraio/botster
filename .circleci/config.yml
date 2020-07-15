@@ -51,10 +51,9 @@ jobs:
             - run: 
                 name: init .pypirc
                 command: |
-                    echo $PROVA
                     echo -e "[testpypi]" >> ~/.pypirc
-                    echo -e "username = $PYPI_USERNAME" >> ~/.pypirc
-                    echo -e "password = $PYPI_PASSWORD" >> ~/.pypirc
+                    echo -e "username = __token__" >> ~/.pypirc
+                    echo -e "password = ${PYPI_TOKEN}" >> ~/.pypirc
             - run:
                 name: create packages
                 command: | 
