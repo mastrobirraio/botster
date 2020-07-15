@@ -1,0 +1,147 @@
+version: 2.1
+
+commands:
+    setup_testing_tools:
+        description: Configure testing env
+        steps:
+            - run: sudo chown -R circleci:circleci /usr/local/bin
+            - run: sudo chown -R circleci:circleci /usr/local/lib/python3.6/site-packages
+            - checkout
+            - run:
+                name: "Install testing dependencies"
+                command: pip install -r requirements-dev.txt
+            - run:
+                name: "Dependencies installed"
+                command: pip freeze
+
+jobs:
+    build:
+        docker:
+            - image: circleci/python:3.6.4
+        steps:
+            - checkout
+            - setup_testing_tools
+
+    isort:
+        docker:
+            - image: circleci/python:3.6.4
+        steps:
+            - checkout
+            - setup_testing_tools
+            - run: isort -c
+
+    flake:
+        docker:
+            - image: circleci/python:3.6.4
+        steps:
+            - checkout
+            - setup_testing_tools
+            - run: flake8 --max-line-length=120
+
+    deploy_pypi_test:
+        docker:
+            - image: circleci/python:3.6.4
+        steps:
+            - checkout
+            - setup_testing_tools
+            - run:
+                name: verify git tag and version
+                command: |
+                    python setup.py verify
+            - run: 
+                name: init .pypirc
+                command: |
+                    echo -e "[testpypi]" >> ~/.pypirc
+                    echo -e "username = $PYPI_USERNAME" >> ~/.pypirc
+                    echo -e "password = $PYPI_PASSWORD" >> ~/.pypirc
+            - run:
+                name: create packages
+                command: | 
+                    make package
+            - run:
+                name: upload to pypi test
+                command: |
+                    twine upload --repository testpypi dist/*
+
+    deploy_pypi:
+        docker:
+            - image: circleci/python:3.6.4
+        steps:
+            - checkout
+            - setup_testing_tools
+            - run:
+                  name: verify git tag and version
+                  command: |
+                      python setup.py verify
+            - run:
+                  name: init .pypirc
+                  command: |
+                      echo -e "[testpypi]" >> ~/.pypirc
+                      echo -e "username = $PYPI_USERNAME" >> ~/.pypirc
+                      echo -e "password = $PYPI_PASSWORD" >> ~/.pypirc
+            - run:
+                  name: create packages
+                  command: |
+                      make package
+            - run:
+                  name: upload to pypi
+                  command: |
+                      twine upload dist/*
+
+workflows:
+    version: 2.1
+    build_and_test:
+        jobs:
+            - isort
+            - flake
+            - build:
+                requires:
+                    - flake
+                    - isort
+
+    build_and_pypi_test_deploy:
+        jobs:
+            - build:
+                filters:
+                    tags:
+                        only: /.*/
+                    branches:
+                        ignore: /.*/
+            - deploy_pypi_test:
+                requires:
+                    - build
+                filters:
+                    tags:
+                        only: /.*/
+                    branches:
+                        ignore: /.*/
+
+    build_and_pypi_deploy:
+        jobs:
+            - isort:
+                filters:
+                    branches:
+                        only: master
+            - flake:
+                filters:
+                    branches:
+                        only: master
+            - build:
+                requires:
+                    - flake
+                    - isort
+                filters:
+                    branches:
+                        only: master
+            - deploy_pypi_test:
+                  requires:
+                      - build
+                  filters:
+                      branches:
+                          only: master
+            - deploy_pypi:
+                requires:
+                    - deploy_pypi_test
+                filters:
+                    branches:
+                        only: master

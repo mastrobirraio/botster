@@ -1,24 +1,42 @@
-import setuptools
+import os
+import sys
 
-with open("README.md", "r") as fh:
-    long_description = fh.read()
+from setuptools import find_packages, setup
+from setuptools.command.install import install
 
-requirements = [
+REQUIREMENTS = [
     'logthon',
     'python-telegram-bot',
     'python-dotenv'
 ]
+VERSION = '0.2.1'
 
-setuptools.setup(
+
+def readme():
+    with open('README.md') as f:
+        return f.read()
+
+
+class VerifyVersionCommand(install):
+    description = 'verify that the git tag matches our version'
+
+    def run(self):
+        tag = os.getenv('CIRCLE_TAG')
+        if tag != VERSION:
+            info = 'Git tag: {} does not match the version of this app: {}'.format(tag, VERSION)
+            sys.exit(info)
+
+
+setup(
     name="botster",
-    version="0.2.0",
+    version=VERSION,
     author="Giuseppe mastrobirraio Matranga",
     author_email="matrangagiuseppe99@gmail.com",
     description="A booster framework to verticalize Telegram bot development",
-    long_description=long_description,
+    long_description=readme(),
     long_description_content_type="text/markdown",
     url="https://github.com/mastrobirraio/botster",
-    packages=setuptools.find_packages(),
+    packages=find_packages(),
     entry_points={
         'console_scripts': ['botster-cli=botster.cli.__main__:execute_from_commandline'],
     },
@@ -27,6 +45,7 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    install_requires=requirements,
-    python_requires='>=3.6'
+    install_requires=REQUIREMENTS,
+    python_requires='>=3.6',
+    cmdclass={'verify': VerifyVersionCommand}
 )
