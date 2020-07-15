@@ -9,7 +9,7 @@ REQUIREMENTS = [
     'python-telegram-bot',
     'python-dotenv'
 ]
-VERSION = '0.2.1'
+VERSION = '0.2.2'
 
 
 def readme():
