@@ -116,7 +116,7 @@ workflows:
                     branches:
                         ignore: /.*/
 
-    build_and_pypi_test:
+    build_and_pypi_deploy:
         jobs:
             - isort:
                 filters:
