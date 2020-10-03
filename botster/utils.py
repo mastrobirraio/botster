@@ -8,20 +8,39 @@ def setup_logger(module_name=__name__):
 
 
 class Settings:
+    """ This class is used to get all .env parameters using them as class attributes
+
+            Attributes
+            ----------------
+            BOT_KEY : str
+                Telegram API Token
+    """
 
     BOT_KEY = None
 
     def __get_attrs(self):
+        """ Gets list of attributes name of this class excluding default properties
+
+        :return: The list of attributes name
+        :rtype: list
+        """
+
         attributes = inspect.getmembers(self, lambda a: not (inspect.isroutine(a)))
         return [a[0] for a in attributes if not (a[0].startswith('__') and a[0].endswith('__'))]
 
     def __validate_attrs(self):
+        """ Check if all class attributes are set
+        """
+
         logthon = setup_logger()
         for attr in self.__get_attrs():
             if getattr(self, attr) is None:
                 logthon.error(attr + ' is missing in .env')
 
     def __init__(self):
+        """ Sets .env file values as class attributes
+        """
+
         from dotenv import load_dotenv
         from os import getenv as os_get_env_variable
 
