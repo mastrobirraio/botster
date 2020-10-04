@@ -4,12 +4,33 @@ logthon = setup_logger(module_name=__name__)
 
 
 class Router:
+    """ Class used to get command name and function to bind to Telegram Bot
+
+            Attributes
+            ----------------
+            commands: list[tuple(str, function,)]
+                list of tuples, containing command name and function to bind
+    """
 
     def __init__(self, settings):
+        """
+        :param settings: Settings instance with all .env parameters and connections
+        :type settings: botster.utils.Settings
+        """
+
         self.__settings = settings
 
     @property
     def commands(self):
+        """ list of tuples, containing command name and function to bind
+
+        Reads files inside commands package module and use module name as command name,
+        then instance the command class inside module to get reference of function to callback when bots is used.
+
+        :return: list of tuples with command and function to bind
+        :rtype: list[tuple(str, function,)]
+        """
+
         import pkgutil
 
         try:
