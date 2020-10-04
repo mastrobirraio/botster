@@ -87,6 +87,8 @@ class Command:
         """
 
         self._settings = settings
+        self._update = None
+        self._context = None
 
     @property
     def name(self):
