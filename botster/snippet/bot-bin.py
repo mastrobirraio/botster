@@ -1,6 +1,7 @@
+from telegram.ext import CommandHandler, Updater
+
 from botster.router import Router
 from botster.utils import Settings, setup_logger
-from telegram.ext import CommandHandler, Updater
 
 # Enable logging
 logthon = setup_logger(__name__)

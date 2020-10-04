@@ -16,19 +16,26 @@ class ScaffoldManager:
 
     Get source folder and snippets folder paths, and copy snippets folder content to source folder
 
-        ATTRIBUTES
+        methods
         ----------------
-        path     : str  | source path, the same where the project will be scaffold
-
-        METHODS
-        ----------------
-        scaffold : None | main method class that satisfy class scope
+        scaffold() : void
+            main method class that satisfy class scope
     """
 
     def __init__(self, path):
+        """
+        :param path: source path, the same where the project will be scaffold
+        :type path: str
+        """
+
         self.__path = path
 
     def __generate_env_file(self):
+        """ Generate .env file
+
+        Gets all attributes of Settings class and insert a new a line into .env
+        """
+
         attributes = inspect.getmembers(Settings, lambda a: not (inspect.isroutine(a)))
         attributes = [a for a in attributes if not(a[0].startswith('__') and a[0].endswith('__'))]
 
@@ -38,6 +45,12 @@ class ScaffoldManager:
                 env_file.write(attr[0] + '=""\n')
 
     def scaffold(self):
+        """ Main method class that satisfy class scope
+
+        Copy contents of snippets package module inside directory used by user
+        then generate the .env file
+        """
+
         src = dirname(snippet.__file__)
         dst = self.__path
 
