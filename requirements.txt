@@ -2,3 +2,5 @@ colorama==0.4.3
 logthon==2.2.3
 python-telegram-bot==12.7
 python-dotenv==0.13.0
+setuptools~=41.2.0
+logicparser==1.1.0
